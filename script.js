@@ -182,15 +182,17 @@ Provide actionable insights for customer engagement.`;
 
 // Generate recommendations
 async function generateRecommendations(customers, competitorInsights, seasonalTrends) {
-    const sampleCustomer = customers[0];
-    const recentItems = sampleCustomer.orders.slice(0, 2).map(o => o.items).join(', ');
+    // Aggregate recent purchase patterns from multiple customers for better recommendations
+    const recentItemsSample = customers.slice(0, 3).map(customer => 
+        customer.orders.slice(0, 2).map(o => o.items).join(', ')
+    ).join(' | ');
     
     const prompt = `As a customer engagement specialist for a tailoring business, generate personalized engagement strategies.
 
 Context:
 - Competitor Insights: ${competitorInsights.substring(0, 300)}...
 - Seasonal Trends: ${seasonalTrends.substring(0, 300)}...
-- Sample customer recent purchases: ${recentItems}
+- Customer purchase patterns (samples): ${recentItemsSample.substring(0, 400)}...
 
 Provide 5-7 specific, actionable recommendations for engaging with existing customers who have purchase history in formal menswear.`;
 
@@ -258,7 +260,6 @@ Keep it concise (200-250 words).`;
         });
 
         // Update progress for email generation
-        const progressPercent = Math.round(((i + 1) / customers.length) * 100);
         await updateStep('step-emails', 'active', `Creating email drafts... (${i + 1}/${customers.length})`);
         await sleep(300); // Small delay between API calls
     }

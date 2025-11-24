@@ -1,6 +1,10 @@
 // Netlify serverless function to handle DeepSeek API calls
 // This keeps the API key secure on the server side
 
+// Note: Netlify provides fetch globally in their Node 18+ runtime
+// If using older Node versions, uncomment the following line:
+// const fetch = require('node-fetch');
+
 exports.handler = async (event, context) => {
   // Only allow POST requests
   if (event.httpMethod !== 'POST') {

@@ -16,9 +16,10 @@
   ],
   "author": "Labrynna",
   "license": "MIT",
-  "dependencies": {
-    "node-fetch": "^2.6.7"
+  "engines": {
+    "node": ">=18.0.0"
   },
+  "dependencies": {},
   "devDependencies": {
     "netlify-cli": "^17.0.0"
   }
