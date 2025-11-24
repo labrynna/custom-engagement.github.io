@@ -1,5 +1,10 @@
 // Main application script
 
+// Constants for sampling and display
+const SAMPLE_CUSTOMERS_COUNT = 3;
+const SAMPLE_ORDERS_PER_CUSTOMER = 2;
+const API_CALL_DELAY_MS = 300; // Small delay between API calls to avoid rate limiting
+
 // Initialize the app
 document.addEventListener('DOMContentLoaded', () => {
     // Set current date
@@ -183,8 +188,8 @@ Provide actionable insights for customer engagement.`;
 // Generate recommendations
 async function generateRecommendations(customers, competitorInsights, seasonalTrends) {
     // Aggregate recent purchase patterns from multiple customers for better recommendations
-    const recentItemsSample = customers.slice(0, 3).map(customer => 
-        customer.orders.slice(0, 2).map(o => o.items).join(', ')
+    const recentItemsSample = customers.slice(0, SAMPLE_CUSTOMERS_COUNT).map(customer => 
+        customer.orders.slice(0, SAMPLE_ORDERS_PER_CUSTOMER).map(o => o.items).join(', ')
     ).join(' | ');
     
     const prompt = `As a customer engagement specialist for a tailoring business, generate personalized engagement strategies.
@@ -261,7 +266,7 @@ Keep it concise (200-250 words).`;
 
         // Update progress for email generation
         await updateStep('step-emails', 'active', `Creating email drafts... (${i + 1}/${customers.length})`);
-        await sleep(300); // Small delay between API calls
+        await sleep(API_CALL_DELAY_MS); // Delay to avoid potential rate limiting
     }
 
     return emailDrafts;
@@ -322,7 +327,7 @@ function createEmailItem(draft, index) {
     const content = document.createElement('div');
     content.className = 'email-content';
     
-    const orderHistory = draft.customer.orders.slice(0, 3).map(order => 
+    const orderHistory = draft.customer.orders.slice(0, SAMPLE_ORDERS_PER_CUSTOMER + 1).map(order => 
         `<div class="order-item">
             <strong>${order.orderId}</strong> - ${order.orderDate}: ${order.items}
         </div>`
