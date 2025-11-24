@@ -2,50 +2,74 @@
 
 ## ✅ Implementation Complete
 
-This document provides a quick overview of what has been built and how to use it.
+This document provides a quick overview of the step-by-step wizard implementation.
 
 ## What Was Built
 
-A complete, production-ready web application that generates AI-powered email drafts for customer engagement. The app is specifically tailored for a tailoring business in Singapore.
+A complete, production-ready web application with a guided 4-step wizard that generates AI-powered email drafts for customer engagement. The app is specifically tailored for a tailoring business in Singapore.
 
 ## Key Features Implemented
 
-1. **AI-Powered Email Generation**
-   - Uses DeepSeek API to create personalized email content
-   - Analyzes competitor insights from provided URLs
-   - Considers seasonal trends based on location and date
-   - Generates unique emails for each customer based on their order history
+### 1. **Step-by-Step Wizard Interface**
+   - Visual progress tracker with 4 steps
+   - Clear navigation between steps
+   - User confirmation at each stage
+   - Ability to go back and edit previous steps
 
-2. **Customer Data Management**
-   - Pre-loaded with 10 dummy customers
-   - Each customer has 5 historical orders
-   - Orders include realistic menswear items
-   - Data can be easily exported to CSV
+### 2. **Step 1: Competitor Analysis**
+   - Input multiple competitor names and URLs (website + LinkedIn)
+   - Add/remove competitors dynamically
+   - AI searches and analyzes their websites
+   - Displays comprehensive competitive intelligence summary
+   - User reviews insights before proceeding
 
-3. **User Interface**
-   - Clean, modern design with gradient background
-   - Intuitive form inputs for location and competitor URLs
-   - Real-time progress indicators showing AI processing steps
-   - Expandable/collapsible email cards
-   - Send tracking with visual checkmarks
+### 3. **Step 2: Seasonal Trends Analysis**
+   - Location input (default: Singapore)
+   - Current date automatically populated
+   - AI analyzes seasonal fashion trends for menswear
+   - Displays trends summary with climate, styles, events
+   - User reviews trends before proceeding
 
-4. **Security & Deployment**
-   - API keys secured via Netlify environment variables
-   - Serverless functions handle all API calls
-   - No sensitive data exposed to client-side
-   - Ready for one-click Netlify deployment
+### 4. **Step 3: Customer Database Review**
+   - Statistics dashboard (10 customers, 50 orders, 5.0 avg)
+   - Customer list preview with names and IDs
+   - Order counts per customer
+   - User confirms data before email generation
+
+### 5. **Step 4: Email Generation & Management**
+   - Real-time progress tracking with progress bar
+   - Status messages showing which customer's email is being generated
+   - Counter display (X of 10 emails generated)
+   - All emails displayed with expand/collapse functionality
+   - Send button tracking with "✓ Sent" confirmation
+   - Start Over button to reset workflow
+
+### 6. **Visual Progress Indicators**
+   - Spinner animations during AI processing
+   - Progress bars for email generation (0-100%)
+   - Status messages at every step
+   - Smooth transitions between steps
+   - Pulse animations on active steps
+
+### 7. **AI-Powered Content (Perplexity API)**
+   - Uses sonar-pro model for superior web research
+   - Analyzes real competitor websites and social media
+   - Research-optimized for seasonal trends
+   - Generates unique, personalized emails for each customer
+   - Search recency: last month (for current information)
 
 ## Files Structure
 
 ```
 .
-├── index.html                      # Main webpage
-├── styles.css                      # Styling and responsive design
-├── script.js                       # Application logic
+├── index.html                      # Wizard interface (4 steps)
+├── styles.css                      # Wizard components and animations
+├── script.js                       # Step-by-step workflow logic
 ├── customerData.js                 # Customer data with CSV export
 ├── netlify.toml                    # Netlify configuration
 ├── netlify/functions/
-│   └── deepseek.js                # Secure API handler
+│   ├── perplexity.js              # Perplexity API handler (NEW)
+│   └── deepseek.js                # Legacy (deprecated)
 ├── package.json                    # Dependencies
 ├── .gitignore                      # Git ignore rules
 ├── README.md                       # Full documentation
@@ -53,47 +77,57 @@ A complete, production-ready web application that generates AI-powered email dra
 └── PROJECT_SUMMARY.md             # This file
 ```
 
-## How to Deploy (Quick Version)
+## Workflow Walkthrough
 
-1. **Get DeepSeek API Key**
-   - Visit https://platform.deepseek.com/
-   - Sign up and create an API key
+### Step 1: Competitor Analysis (User Input → AI Analysis → Summary)
+1. User enters competitor names and URLs
+2. Clicks "Analyze Competitors"
+3. Spinner shows: "Searching competitor websites and LinkedIn..."
+4. AI analyzes their offerings, promotions, strategies
+5. **Insights Summary displayed**: Key findings, pricing, opportunities
+6. User reviews and clicks "Continue to Seasonal Trends →"
 
-2. **Deploy to Netlify**
-   - Push this code to GitHub
-   - Connect repository to Netlify
-   - Click deploy
+### Step 2: Seasonal Trends (User Input → AI Analysis → Summary)
+1. User verifies location (default: Singapore)
+2. Current date shown automatically
+3. Clicks "Analyze Seasonal Trends"
+4. Spinner shows: "Analyzing seasonal fashion trends..."
+5. AI researches current season, styles, events, fabrics
+6. **Trends Summary displayed**: Climate, styles, customer preferences
+7. User reviews and clicks "Continue to Customer Review →"
 
-3. **Configure Environment Variable**
-   - In Netlify dashboard: Site Settings → Environment Variables
-   - Add: `DEEPSEEK_API_KEY` = your API key
-   - Trigger new deployment
+### Step 3: Customer Review (Display → User Confirmation)
+1. **Statistics displayed**: Total customers, orders, averages
+2. **Customer list preview**: Names, IDs, order counts
+3. User verifies data is correct
+4. Clicks "Generate Emails for All Customers"
 
-4. **Done!** Your app is live
+### Step 4: Email Generation (Progress → Results)
+1. **Progress bar** shows completion (0-100%)
+2. **Status updates**: "Generating email for James Tan..." (1 of 10)
+3. Each email personalized based on customer history
+4. **All emails displayed** with expand/collapse
+5. Click email → Shows subject, body, order history
+6. Click "Send" → Changes to "✓ Sent"
+7. Click "← Start Over" → Returns to Step 1
 
-See `DEPLOYMENT_GUIDE.md` for detailed instructions.
+## API Integration - Perplexity vs DeepSeek
 
-## How to Use the App
+### Why Perplexity?
 
-1. **Open the webapp** in your browser
-2. **Enter competitor URLs** (optional) - comma-separated website and LinkedIn URLs
-3. **Verify location** - defaults to Singapore
-4. **Click "Generate Email Drafts"**
-5. **Watch the progress** - 5 steps with visual indicators
-6. **Review emails** - click any email to expand and see full content
-7. **Track sends** - click "Send" button to mark email as sent
+| Feature | Perplexity | DeepSeek |
+|---------|-----------|----------|
+| Web Search | ✅ Excellent | ❌ Limited |
+| Real-time Info | ✅ Yes | ❌ No |
+| Competitor Analysis | ✅ Superior | ⚠️ Basic |
+| Research Focus | ✅ Optimized | ⚠️ General |
+| Trend Analysis | ✅ Current | ⚠️ Static |
 
-## Workflow Steps Visualized
-
-The app shows real-time progress through these stages:
-
-1. ⚙️ Loading customer data
-2. ⚙️ Analyzing competitor insights
-3. ⚙️ Analyzing seasonal trends
-4. ⚙️ Generating personalized recommendations
-5. ⚙️ Creating email drafts
-
-Each step shows ✅ when complete.
+### API Configuration
+- **Endpoint**: `/.netlify/functions/perplexity`
+- **Model**: sonar-pro (web search optimized)
+- **Environment Variable**: `PERPLEXITY_API_KEY`
+- **Search Recency**: month (latest information)
 
 ## Customer Data
 
@@ -106,12 +140,37 @@ The dummy dataset includes:
 
 ## Technical Highlights
 
-- **No build step required** - pure HTML, CSS, JavaScript
-- **Serverless architecture** - scales automatically with Netlify
-- **Secure by design** - API keys never exposed to client
-- **Graceful degradation** - mock data fallback for testing
-- **Responsive design** - works on mobile and desktop
-- **Zero dependencies** - no frameworks needed
+- **Zero build step** - pure HTML, CSS, JavaScript
+- **Serverless architecture** - scales with Netlify
+- **Secure by design** - API keys server-side only
+- **Graceful degradation** - mock data fallback
+- **Responsive design** - works on all devices
+- **Progressive disclosure** - information revealed step-by-step
+
+## User Experience Improvements
+
+### Before (Single Page)
+- All inputs on one page
+- No clear workflow
+- Generic progress indicators
+- No review/confirmation steps
+
+### After (4-Step Wizard)
+- ✅ Clear step-by-step progression
+- ✅ Visual progress tracking
+- ✅ AI insights shown after each analysis
+- ✅ User confirmation at each stage
+- ✅ Ability to go back and edit
+- ✅ Real-time status updates
+- ✅ Professional, guided experience
+
+## API Usage
+
+Per complete workflow:
+- 1 call: Competitor analysis
+- 1 call: Seasonal trends
+- 10 calls: Customer emails (one per customer)
+- **Total: 12 API calls**
 
 ## Cost Estimate
 
@@ -121,100 +180,73 @@ The dummy dataset includes:
 - 125k function invocations/month
 - **Cost: FREE** for moderate usage
 
-### DeepSeek API
+### Perplexity API
 - Pay-per-use pricing
-- ~14-15 API calls per generation session
-- Check current pricing at https://platform.deepseek.com/pricing
-- **Estimated cost: Very low** for typical usage
+- ~12 API calls per workflow
+- Check current pricing at perplexity.ai
+- **Estimated cost: Low** for typical usage
 
 ## Customization Options
 
-You can easily customize:
+Easy to customize:
 
 1. **Customer data** - edit `customerData.js`
 2. **Styling** - modify `styles.css`
 3. **Email prompts** - adjust in `script.js`
-4. **Number of samples** - change constants in `script.js`:
-   - `SAMPLE_CUSTOMERS_COUNT`
-   - `SAMPLE_ORDERS_PER_CUSTOMER`
-   - `API_CALL_DELAY_MS`
+4. **Number of steps** - add/remove steps in workflow
+5. **API model** - change in `netlify/functions/perplexity.js`
 
-## Testing
+## Testing Completed
 
-The app has been thoroughly tested:
-- ✅ UI rendering and interactions
-- ✅ Form validation
-- ✅ Progress indicators
-- ✅ Email generation workflow
-- ✅ Expand/collapse functionality
-- ✅ Send button state management
-- ✅ Mock data fallback
-- ✅ Responsive design
-- ✅ Security (CodeQL passed)
+✅ Step 1: Competitor entry → Analysis → Insights → Navigate
+✅ Step 2: Location entry → Trends → Summary → Navigate
+✅ Step 3: Statistics → Preview → Confirm → Generate
+✅ Step 4: Progress tracking → Email results → Expand/collapse
+✅ Navigation: Back/forward between steps
+✅ Send button: Mark as sent functionality
+✅ Start Over: Reset workflow
+✅ Mock fallback: Works without API key
+✅ Security: CodeQL scan passed (0 vulnerabilities)
+✅ Responsive: Works on mobile and desktop
 
-## Support & Troubleshooting
+## Deployment
 
-Common issues and solutions:
+### Required Environment Variable
 
-**Problem**: Emails use generic content instead of AI-generated
-**Solution**: Check that `DEEPSEEK_API_KEY` is set in Netlify environment variables
+**Variable Name**: `PERPLEXITY_API_KEY`
+**Where to add**: Netlify Dashboard → Site Settings → Environment Variables
+**What it does**: Authenticates API requests to Perplexity
+**Required**: YES
 
-**Problem**: Functions not working
-**Solution**: Ensure `netlify.toml` and `netlify/functions/deepseek.js` are committed
+### Quick Deploy Steps
 
-**Problem**: API errors
-**Solution**: Verify API key is valid and has sufficient quota
+1. Get Perplexity API key from perplexity.ai
+2. Deploy repository to Netlify
+3. Add `PERPLEXITY_API_KEY` in environment variables
+4. Trigger new deployment
+5. Test the workflow
 
-See `DEPLOYMENT_GUIDE.md` for more troubleshooting tips.
-
-## Next Steps
-
-After deployment:
-
-1. Test with real competitor URLs
-2. Customize email templates to match your brand voice
-3. Replace dummy customer data with real data
-4. Adjust styling colors to match your brand
-5. Consider adding email delivery integration
-
-## Maintenance
-
-The app requires minimal maintenance:
-- Monitor DeepSeek API usage and costs
-- Update customer data as needed
-- Refresh competitor URLs periodically
-- Keep API keys secure and rotate regularly
+See `DEPLOYMENT_GUIDE.md` for detailed instructions.
 
 ## Success Criteria ✅
 
-All requirements from the problem statement have been met:
+All requirements from user feedback have been met:
 
-- [x] Web app for Singapore tailor
-- [x] Produces email drafts
-- [x] AI generated using DeepSeek API
-- [x] Inputs: competitor URLs, location, date
-- [x] Dummy customer data (10 customers, 5 orders each)
-- [x] CSV export capability
-- [x] Brainstorms action recommendations
-- [x] Shows customized email list
-- [x] Expandable/collapsible emails
-- [x] Send button with checkmark status
+- [x] Step-by-step wizard approach
+- [x] Competitor input → AI analysis → Show insights summary
+- [x] Seasonal trends input → AI analysis → Show summary
+- [x] Customer database review with statistics
+- [x] Real-time email generation progress
+- [x] Work-in-progress visible at each step
+- [x] Switched to Perplexity API for better web searches
+- [x] User confirmation before proceeding
 - [x] Visual progress indicators
-- [x] Shows what LLM is working on
-- [x] Hosted on Netlify
-- [x] API keys in environment variables
-- [x] Documentation provided
-
-## Environment Variable Reference
-
-**Variable Name**: `DEEPSEEK_API_KEY`
-**Where to add**: Netlify Dashboard → Site Settings → Environment Variables
-**What it does**: Authenticates API requests to DeepSeek
-**Required**: YES
+- [x] Expandable/collapsible emails
+- [x] Send button tracking
 
 ---
 
-**Project Status**: ✅ COMPLETE AND READY FOR DEPLOYMENT
+**Project Status**: ✅ COMPLETE AND PRODUCTION-READY
 
 For detailed deployment instructions, see `DEPLOYMENT_GUIDE.md`
 For technical documentation, see `README.md`
