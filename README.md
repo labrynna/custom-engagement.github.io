@@ -1,30 +1,57 @@
 # custom-engagement.github.io
-A workflow that produces customized mail drafts to reach out to existing customers based on past customer orders, defined competitors and the current season or time of the year.
+A step-by-step wizard that produces customized mail drafts to reach out to existing customers based on past customer orders, competitor analysis, and current seasonal trends.
 
 ## Overview
 
-This is an AI-powered email draft generator designed for a tailoring business in Singapore. It helps generate personalized email drafts to engage with existing customers based on:
+This is an AI-powered email draft generator designed for a tailoring business in Singapore. It features a guided, step-by-step workflow that helps generate personalized email drafts based on:
 
-1. **Competitor Insights**: Analysis of competitor websites and LinkedIn pages
+1. **Competitor Insights**: AI-powered analysis of competitor websites and LinkedIn pages
 2. **Seasonal Trends**: Current seasonal trends based on date and location
 3. **Customer Data**: Historical customer purchase data
 
 ## Features
 
-- 🤖 **AI-Powered Content**: Uses DeepSeek API to generate intelligent, personalized email drafts
-- 📊 **Customer Data Management**: Built-in dummy customer data with 10 customers and their order history
-- 🎯 **Competitor Analysis**: Input competitor URLs for market intelligence
-- 🌍 **Location-Aware**: Seasonal trends based on location (default: Singapore)
+- 🤖 **AI-Powered Content**: Uses Perplexity API for intelligent web research and content generation
+- 🎯 **Step-by-Step Wizard**: Guided workflow with visual progress tracking
+- 🔍 **Competitor Analysis**: Input competitor URLs for AI-powered market intelligence
+- 🌍 **Seasonal Trends**: Location-aware seasonal trend analysis
+- 👥 **Customer Database Review**: Review customer data before email generation
 - 📧 **Email Management**: Expandable/collapsible email list with send tracking
-- 👁️ **Visual Progress**: Real-time status updates showing what the AI is working on
+- 👁️ **Visual Progress**: Real-time status updates at every step
 - ✅ **Send Tracking**: Mark emails as sent with visual confirmation
+
+## Step-by-Step Workflow
+
+### Step 1: Competitor Analysis
+- Enter competitor names and their website/LinkedIn URLs
+- AI analyzes their latest updates, offerings, and strategies
+- View comprehensive competitive insights summary
+- Confirm or edit before proceeding
+
+### Step 2: Seasonal Trends
+- Enter current location (default: Singapore)
+- AI analyzes seasonal fashion trends for menswear
+- View seasonal insights and recommendations
+- Confirm or edit before proceeding
+
+### Step 3: Customer Review
+- Review customer database statistics
+- See total customers, orders, and averages
+- Preview customer list with order counts
+- Confirm to start email generation
+
+### Step 4: Email Generation
+- Watch real-time progress as AI generates personalized emails
+- Progress bar shows completion status
+- View all generated emails with expand/collapse functionality
+- Mark emails as sent individually
 
 ## Setup Instructions
 
 ### Prerequisites
 
 - A Netlify account
-- A DeepSeek API key (from [https://www.deepseek.com/](https://www.deepseek.com/))
+- A Perplexity API key (from [https://www.perplexity.ai/](https://www.perplexity.ai/))
 
 ### Deployment to Netlify
 
@@ -39,8 +66,8 @@ This is an AI-powered email draft generator designed for a tailoring business in
 3. **Configure Environment Variables**:
    - In your Netlify site dashboard, go to "Site settings" → "Environment variables"
    - Add the following environment variable:
-     - **Name**: `DEEPSEEK_API_KEY`
-     - **Value**: Your DeepSeek API key
+     - **Name**: `PERPLEXITY_API_KEY`
+     - **Value**: Your Perplexity API key
    - Save the changes
 
 4. **Deploy**:
@@ -49,8 +76,8 @@ This is an AI-powered email draft generator designed for a tailoring business in
 
 ### Required Environment Variable
 
-- **`DEEPSEEK_API_KEY`**: Your DeepSeek API key for generating AI-powered content
-  - Get your API key from [DeepSeek Platform](https://platform.deepseek.com/)
+- **`PERPLEXITY_API_KEY`**: Your Perplexity API key for AI-powered web research and content generation
+  - Get your API key from [Perplexity Platform](https://www.perplexity.ai/)
   - Add this in Netlify's environment variables section
 
 ## Local Development
@@ -70,7 +97,7 @@ To run this project locally:
 
 3. Create a `.env` file in the root directory:
    ```
-   DEEPSEEK_API_KEY=your_api_key_here
+   PERPLEXITY_API_KEY=your_api_key_here
    ```
 
 4. Run the development server:
@@ -82,58 +109,66 @@ To run this project locally:
 
 ## Usage
 
-1. **Enter Competitor Information** (optional):
-   - Add competitor website URLs and LinkedIn pages
-   - Separate multiple URLs with commas
+### Step 1: Competitor Analysis
+1. Enter competitor names and their website URLs
+2. Optionally add LinkedIn URLs
+3. Click "+ Add Another Competitor" to add more
+4. Click "Analyze Competitors"
+5. Wait for AI to search and analyze (progress indicator shown)
+6. Review the competitive insights summary
+7. Click "Continue to Seasonal Trends →"
 
-2. **Verify Location**:
-   - Default is "Singapore"
-   - Change if targeting a different location
+### Step 2: Seasonal Trends
+1. Verify the location (default: Singapore)
+2. Current date is automatically populated
+3. Click "Analyze Seasonal Trends"
+4. Wait for AI analysis (progress indicator shown)
+5. Review the seasonal trends summary
+6. Click "Continue to Customer Review →"
 
-3. **Generate Email Drafts**:
-   - Click "Generate Email Drafts"
-   - Watch the progress indicators as the AI processes:
-     - Loading customer data
-     - Analyzing competitor insights
-     - Analyzing seasonal trends
-     - Generating personalized recommendations
-     - Creating email drafts
+### Step 3: Customer Review
+1. Review customer database statistics
+2. Check the customer preview list
+3. Verify all information is correct
+4. Click "Generate Emails for All Customers"
 
-4. **Review and Manage Emails**:
-   - Click on any email to expand and view full content
-   - See customer order history within each email
-   - Click "Send" to mark an email as sent
-   - Sent emails show a checkmark (✓ Sent)
+### Step 4: Email Generation
+1. Watch the progress bar as emails are generated
+2. Each email is personalized based on customer history
+3. Once complete, all emails are displayed
+4. Click any email to expand and view full content
+5. Click "Send" to mark an email as sent
+6. Click "← Start Over" to begin a new session
 
 ## Customer Data
 
 The application includes dummy customer data with:
-- 10 customers (CUST001 to CUST010)
-- 5 orders per customer
-- Order details including date and menswear items
-- Data sorted by order date (most recent first)
-
-You can download the customer data as a CSV file for reference.
+- **10 customers**: James Tan, Sarah Lim, Michael Wong, David Chen, Robert Ng, Kevin Lee, Andrew Koh, Daniel Ong, Christopher Teo, Thomas Goh
+- **50 total orders**: 5 orders per customer
+- **Realistic items**: Navy suits, dress shirts, blazers, chinos, polo shirts, etc.
+- **Date range**: July 2025 to November 2025
+- **Sorted by date**: Most recent orders first
 
 ## Technical Stack
 
 - **Frontend**: Pure HTML, CSS, and JavaScript (no frameworks)
 - **Backend**: Netlify Serverless Functions
-- **AI**: DeepSeek API for content generation
+- **AI**: Perplexity API (sonar-pro model for web research)
 - **Hosting**: Netlify
 
 ## File Structure
 
 ```
 .
-├── index.html              # Main HTML file
-├── styles.css              # Styling
-├── script.js              # Main application logic
+├── index.html              # Main HTML with wizard interface
+├── styles.css              # Styling with wizard components
+├── script.js              # Step-by-step workflow logic
 ├── customerData.js        # Customer data and CSV generation
 ├── netlify.toml           # Netlify configuration
 ├── netlify/
 │   └── functions/
-│       └── deepseek.js    # Serverless function for API calls
+│       ├── perplexity.js  # Perplexity API handler (NEW)
+│       └── deepseek.js    # Legacy (deprecated)
 └── README.md              # This file
 ```
 
@@ -143,15 +178,46 @@ You can download the customer data as a CSV file for reference.
 - API calls are routed through Netlify serverless functions
 - No sensitive data is exposed to the client side
 
+## Why Perplexity API?
+
+Perplexity API was chosen over DeepSeek because:
+- **Better web search capabilities**: Perplexity excels at searching and analyzing real-time web content
+- **Up-to-date information**: Can access current competitor websites and social media
+- **Research-oriented**: Designed specifically for research and information gathering tasks
+- **Citation support**: Provides sources for its information (optional)
+
 ## Troubleshooting
 
 ### Mock Data Mode
 
-If the DeepSeek API is unavailable or the API key is not configured, the application will automatically fall back to mock responses for development and testing purposes.
+If the Perplexity API is unavailable or the API key is not configured, the application will automatically fall back to mock responses for development and testing purposes.
 
 ### API Limits
 
-Be aware of your DeepSeek API rate limits and quotas. The application generates one API call per processing step plus one per customer email (typically 14+ calls per generation).
+Be aware of your Perplexity API rate limits and quotas. The application generates:
+- 1 API call for competitor analysis
+- 1 API call for seasonal trends
+- 1 API call per customer email (typically 10 calls)
+- **Total: ~12 API calls per complete workflow**
+
+### Common Issues
+
+**Problem**: Steps show generic insights instead of real research
+**Solution**: Check that `PERPLEXITY_API_KEY` is set correctly in Netlify environment variables
+
+**Problem**: Competitor analysis fails
+**Solution**: Ensure competitor URLs are valid and accessible
+
+**Problem**: Slow email generation
+**Solution**: Normal behavior - AI generates personalized content for each customer (takes 30-60 seconds for 10 customers)
+
+## Maintenance
+
+The app requires minimal maintenance:
+- Monitor Perplexity API usage and costs
+- Update customer data as needed
+- Refresh competitor URLs periodically
+- Keep API keys secure and rotate regularly
 
 ## License
 

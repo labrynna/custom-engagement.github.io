@@ -1,9 +1,19 @@
-// Main application script
+// Main application script - Step-by-step wizard approach
 
-// Constants for sampling and display
-const SAMPLE_CUSTOMERS_COUNT = 3;
-const SAMPLE_ORDERS_PER_CUSTOMER = 2;
-const API_CALL_DELAY_MS = 300; // Small delay between API calls to avoid rate limiting
+// Constants
+const SAMPLE_ORDERS_PER_CUSTOMER = 3;
+
+// State management
+let appState = {
+    currentStep: 1,
+    competitors: [],
+    competitorInsights: '',
+    seasonalTrends: '',
+    location: 'Singapore',
+    currentDate: '',
+    customers: [],
+    emailDrafts: []
+};
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', () => {
@@ -16,88 +26,563 @@ document.addEventListener('DOMContentLoaded', () => {
         day: 'numeric' 
     });
     document.getElementById('current-date').value = dateString;
-
-    // Add event listener to generate button
-    document.getElementById('generate-btn').addEventListener('click', generateEmailDrafts);
+    appState.currentDate = dateString;
+    
+    // Load customer data
+    appState.customers = customerData;
+    
+    // Show first step
+    goToStep(1);
 });
 
-// State management
-let emailDraftsState = [];
-
-// Main function to generate email drafts
-async function generateEmailDrafts() {
-    const location = document.getElementById('location').value || 'Singapore';
-    const competitorUrls = document.getElementById('competitor-urls').value;
-    const currentDate = document.getElementById('current-date').value;
-
-    // Hide error and results sections
-    hideSection('error-section');
-    hideSection('results-section');
+// Step navigation
+function goToStep(stepNumber, showResults = false) {
+    appState.currentStep = stepNumber;
     
-    // Show progress section
-    showSection('progress-section');
+    // Hide all content sections
+    document.querySelectorAll('.step-content, .card:not(.wizard-progress)').forEach(el => {
+        if (!el.classList.contains('wizard-progress')) {
+            el.classList.add('hidden');
+        }
+    });
     
-    // Disable generate button
-    const generateBtn = document.getElementById('generate-btn');
-    generateBtn.disabled = true;
-    generateBtn.textContent = 'Processing...';
+    // Update wizard progress
+    document.querySelectorAll('.wizard-step').forEach((step, index) => {
+        step.classList.remove('active', 'completed');
+        if (index + 1 < stepNumber) {
+            step.classList.add('completed');
+        } else if (index + 1 === stepNumber) {
+            step.classList.add('active');
+        }
+    });
+    
+    // Show appropriate content
+    if (showResults) {
+        // Show results from previous step
+        if (stepNumber === 1) {
+            document.getElementById('step-1-results').classList.remove('hidden');
+        } else if (stepNumber === 2) {
+            document.getElementById('step-2-results').classList.remove('hidden');
+        }
+    } else {
+        // Show step input form
+        if (stepNumber === 1) {
+            document.getElementById('step-1').classList.remove('hidden');
+        } else if (stepNumber === 2) {
+            document.getElementById('step-2').classList.remove('hidden');
+        } else if (stepNumber === 3) {
+            showCustomerReview();
+        } else if (stepNumber === 4) {
+            document.getElementById('step-4-results').classList.remove('hidden');
+        }
+    }
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
+// Add competitor entry
+function addCompetitorEntry() {
+    const competitorList = document.getElementById('competitor-list');
+    const newEntry = document.createElement('div');
+    newEntry.className = 'competitor-entry';
+    newEntry.innerHTML = `
+        <input type="text" class="competitor-name" placeholder="Competitor Name">
+        <input type="url" class="competitor-url" placeholder="Website URL">
+        <input type="url" class="competitor-linkedin" placeholder="LinkedIn URL (optional)">
+    `;
+    competitorList.appendChild(newEntry);
+}
+
+// Step 1: Analyze Competitors
+async function analyzeCompetitors() {
+    // Collect competitor data
+    const entries = document.querySelectorAll('.competitor-entry');
+    appState.competitors = [];
+    
+    entries.forEach(entry => {
+        const name = entry.querySelector('.competitor-name').value.trim();
+        const url = entry.querySelector('.competitor-url').value.trim();
+        const linkedin = entry.querySelector('.competitor-linkedin').value.trim();
+        
+        if (name && url) {
+            appState.competitors.push({ name, url, linkedin });
+        }
+    });
+    
+    if (appState.competitors.length === 0) {
+        showError('Please enter at least one competitor with name and website URL.');
+        return;
+    }
+    
+    // Show progress
+    document.getElementById('step-1').classList.add('hidden');
+    document.getElementById('step-1-progress').classList.remove('hidden');
+    
     try {
-        // Step 1: Load customer data
-        await updateStep('step-customer-data', 'active', 'Processing customer data...');
-        await sleep(500);
-        const customers = customerData;
-        await updateStep('step-customer-data', 'completed', '✅ Customer data loaded');
+        // Build prompt for Perplexity
+        const competitorList = appState.competitors.map(c => 
+            `- ${c.name}: ${c.url}${c.linkedin ? ` (LinkedIn: ${c.linkedin})` : ''}`
+        ).join('\n');
+        
+        const prompt = `Research and analyze the following tailoring/menswear competitors in Singapore and their latest updates:
 
-        // Step 2: Analyze competitor insights
-        await updateStep('step-competitor', 'active', 'Analyzing competitor insights...');
-        const competitorInsights = await analyzeCompetitors(competitorUrls, location);
-        await updateStep('step-competitor', 'completed', '✅ Competitor analysis complete');
+${competitorList}
 
-        // Step 3: Analyze seasonal trends
-        await updateStep('step-seasonal', 'active', 'Analyzing seasonal trends...');
-        const seasonalTrends = await analyzeSeasonalTrends(location, currentDate);
-        await updateStep('step-seasonal', 'completed', '✅ Seasonal analysis complete');
+Please search their websites and social media (LinkedIn if provided) for:
+1. Latest product launches or collections
+2. Current promotions or special offers
+3. Unique selling propositions and services
+4. Recent updates, news, or announcements
+5. Pricing strategies and positioning
 
-        // Step 4: Generate recommendations
-        await updateStep('step-recommendations', 'active', 'Generating personalized recommendations...');
-        const recommendations = await generateRecommendations(
-            customers,
-            competitorInsights,
-            seasonalTrends
-        );
-        await updateStep('step-recommendations', 'completed', '✅ Recommendations generated');
+Provide a comprehensive summary of competitive insights that would be useful for a tailoring business planning customer outreach campaigns.`;
 
-        // Step 5: Create email drafts
-        await updateStep('step-emails', 'active', 'Creating personalized email drafts...');
-        const emailDrafts = await generateEmails(
-            customers,
-            recommendations,
-            competitorInsights,
-            seasonalTrends
-        );
-        await updateStep('step-emails', 'completed', '✅ Email drafts created');
-
-        // Store email drafts
-        emailDraftsState = emailDrafts;
-
-        // Display results
-        displayEmailDrafts(emailDrafts);
-        showSection('results-section');
-
+        const insights = await callPerplexityAPI(prompt);
+        appState.competitorInsights = insights;
+        
+        // Show results
+        document.getElementById('step-1-progress').classList.add('hidden');
+        displayCompetitorInsights(insights);
+        document.getElementById('step-1-results').classList.remove('hidden');
+        
+        // Update wizard progress
+        document.querySelector('.wizard-step[data-step="1"]').classList.add('completed');
+        
     } catch (error) {
-        console.error('Error:', error);
-        showError(`Failed to generate email drafts: ${error.message}`);
-    } finally {
-        generateBtn.disabled = false;
-        generateBtn.textContent = 'Generate Email Drafts';
+        console.error('Error analyzing competitors:', error);
+        document.getElementById('step-1-progress').classList.add('hidden');
+        showError(`Failed to analyze competitors: ${error.message}`);
+        document.getElementById('step-1').classList.remove('hidden');
     }
 }
 
-// DeepSeek API call function using Netlify serverless function
-async function callDeepSeekAPI(prompt, systemPrompt = 'You are a helpful assistant for a tailoring business in Singapore.') {
+function displayCompetitorInsights(insights) {
+    const content = document.getElementById('competitor-insights-content');
+    content.innerHTML = `
+        <h3>🔍 Competitive Intelligence Summary</h3>
+        <div style="white-space: pre-wrap; line-height: 1.8;">${insights}</div>
+    `;
+}
+
+// Step 2: Analyze Seasonal Trends
+async function analyzeSeasonalTrends() {
+    appState.location = document.getElementById('location').value || 'Singapore';
+    
+    // Show progress
+    document.getElementById('step-2').classList.add('hidden');
+    document.getElementById('step-2-progress').classList.remove('hidden');
+    
     try {
-        const response = await fetch('/.netlify/functions/deepseek', {
+        const prompt = `Analyze current seasonal fashion trends for menswear (tailored suits, dress shirts, and coats) in ${appState.location} as of ${appState.currentDate}.
+
+Please research and provide:
+1. Current season and climate considerations for ${appState.location}
+2. Trending fabrics, colors, and styles for this time of year
+3. Upcoming events or holidays that drive formal wear demand
+4. Fashion industry trends affecting tailored menswear
+5. Customer preferences and buying patterns for this season
+
+Focus on actionable insights for a bespoke tailoring business planning customer engagement campaigns.`;
+
+        const trends = await callPerplexityAPI(prompt);
+        appState.seasonalTrends = trends;
+        
+        // Show results
+        document.getElementById('step-2-progress').classList.add('hidden');
+        displaySeasonalTrends(trends);
+        document.getElementById('step-2-results').classList.remove('hidden');
+        
+        // Update wizard progress
+        document.querySelector('.wizard-step[data-step="2"]').classList.add('completed');
+        
+    } catch (error) {
+        console.error('Error analyzing seasonal trends:', error);
+        document.getElementById('step-2-progress').classList.add('hidden');
+        showError(`Failed to analyze seasonal trends: ${error.message}`);
+        document.getElementById('step-2').classList.remove('hidden');
+    }
+}
+
+function displaySeasonalTrends(trends) {
+    const content = document.getElementById('seasonal-insights-content');
+    content.innerHTML = `
+        <h3>🌤️ Seasonal Trends Analysis</h3>
+        <div style="white-space: pre-wrap; line-height: 1.8;">${trends}</div>
+    `;
+}
+
+// Step 3: Show Customer Review
+function showCustomerReview() {
+    const totalCustomers = appState.customers.length;
+    const totalOrders = appState.customers.reduce((sum, c) => sum + c.orders.length, 0);
+    const avgOrders = (totalOrders / totalCustomers).toFixed(1);
+    
+    document.getElementById('total-customers').textContent = totalCustomers;
+    document.getElementById('total-orders').textContent = totalOrders;
+    document.getElementById('avg-orders').textContent = avgOrders;
+    
+    // Display customer preview
+    const preview = document.getElementById('customer-preview');
+    preview.innerHTML = appState.customers.map(customer => `
+        <div class="customer-preview-item">
+            <div>
+                <div class="customer-name-preview">${customer.customerName}</div>
+                <div class="customer-orders-preview">ID: ${customer.customerId}</div>
+            </div>
+            <div class="customer-orders-preview">${customer.orders.length} orders</div>
+        </div>
+    `).join('');
+    
+    document.getElementById('step-3').classList.remove('hidden');
+    document.querySelector('.wizard-step[data-step="3"]').classList.add('completed');
+}
+
+// Step 4: Generate Emails
+async function startEmailGeneration() {
+    document.getElementById('step-3').classList.add('hidden');
+    document.getElementById('step-4-progress').classList.remove('hidden');
+    
+    appState.emailDrafts = [];
+    const totalCustomers = appState.customers.length;
+    
+    try {
+        for (let i = 0; i < totalCustomers; i++) {
+            const customer = appState.customers[i];
+            
+            // Update progress
+            const progressPercent = ((i) / totalCustomers) * 100;
+            document.getElementById('email-progress-bar').style.width = `${progressPercent}%`;
+            document.getElementById('email-progress-count').textContent = 
+                `${i} of ${totalCustomers} emails generated`;
+            document.getElementById('email-progress-text').textContent = 
+                `Generating personalized email for ${customer.customerName}...`;
+            
+            // Generate email
+            const email = await generateCustomerEmail(customer);
+            appState.emailDrafts.push(email);
+            
+            // Small delay between API calls
+            await sleep(500);
+        }
+        
+        // Complete
+        document.getElementById('email-progress-bar').style.width = '100%';
+        document.getElementById('email-progress-count').textContent = 
+            `${totalCustomers} of ${totalCustomers} emails generated`;
+        
+        await sleep(500);
+        
+        // Show results
+        document.getElementById('step-4-progress').classList.add('hidden');
+        displayEmailDrafts();
+        document.getElementById('step-4-results').classList.remove('hidden');
+        document.querySelector('.wizard-step[data-step="4"]').classList.add('completed');
+        
+    } catch (error) {
+        console.error('Error generating emails:', error);
+        document.getElementById('step-4-progress').classList.add('hidden');
+        showError(`Failed to generate emails: ${error.message}`);
+        document.getElementById('step-3').classList.remove('hidden');
+    }
+}
+
+async function generateCustomerEmail(customer) {
+    const recentOrders = customer.orders.slice(0, SAMPLE_ORDERS_PER_CUSTOMER);
+    const orderDetails = recentOrders.map(o => 
+        `${o.orderDate}: ${o.items} (Order ${o.orderId})`
+    ).join('\n');
+    
+    const prompt = `Write a personalized customer engagement email for a bespoke tailoring business.
+
+Customer Information:
+- Name: ${customer.customerName}
+- Customer ID: ${customer.customerId}
+- Recent Purchase History:
+${orderDetails}
+
+Context for Personalization:
+1. Competitive Landscape: ${appState.competitorInsights.substring(0, 400)}...
+
+2. Seasonal Trends: ${appState.seasonalTrends.substring(0, 400)}...
+
+Please create a warm, professional email that:
+- References their specific past purchases naturally
+- Suggests relevant products/services based on seasonal trends
+- Creates urgency with timely seasonal/event context
+- Differentiates from competitors
+- Includes a clear call-to-action
+- Maintains a personalized, conversational tone
+
+Format:
+Subject: [Compelling subject line]
+
+[Email body - 200-250 words]
+
+Best regards,
+[Signature]`;
+
+    const response = await callPerplexityAPI(prompt, 'You are an expert email marketing specialist for luxury tailoring businesses.');
+    
+    // Parse subject and body
+    const lines = response.split('\n');
+    let subject = 'Your Personalized Tailoring Update';
+    let body = response;
+    
+    for (let j = 0; j < lines.length; j++) {
+        if (lines[j].toLowerCase().startsWith('subject:')) {
+            subject = lines[j].replace(/^subject:\s*/i, '').trim();
+            body = lines.slice(j + 1).join('\n').trim();
+            break;
+        }
+    }
+    
+    return {
+        customer: customer,
+        subject: subject,
+        body: body,
+        sent: false
+    };
+}
+
+function displayEmailDrafts() {
+    const emailList = document.getElementById('email-list');
+    emailList.innerHTML = '';
+    
+    appState.emailDrafts.forEach((draft, index) => {
+        const emailItem = createEmailItem(draft, index);
+        emailList.appendChild(emailItem);
+    });
+}
+
+function createEmailItem(draft, index) {
+    const div = document.createElement('div');
+    div.className = 'email-item';
+    div.id = `email-${index}`;
+
+    const header = document.createElement('div');
+    header.className = 'email-header';
+    header.onclick = () => toggleEmail(index);
+
+    const info = document.createElement('div');
+    info.className = 'email-info';
+    info.innerHTML = `
+        <div class="customer-name">${draft.customer.customerName}</div>
+        <div class="customer-id">Customer ID: ${draft.customer.customerId}</div>
+    `;
+
+    const actions = document.createElement('div');
+    actions.className = 'email-actions';
+
+    if (draft.sent) {
+        actions.innerHTML = '<div class="sent-status">✓ Sent</div>';
+    } else {
+        const sendBtn = document.createElement('button');
+        sendBtn.className = 'send-btn';
+        sendBtn.textContent = 'Send';
+        sendBtn.onclick = (e) => {
+            e.stopPropagation();
+            markAsSent(index);
+        };
+        actions.appendChild(sendBtn);
+    }
+
+    const expandIcon = document.createElement('div');
+    expandIcon.className = 'expand-icon';
+    expandIcon.textContent = '▼';
+    actions.appendChild(expandIcon);
+
+    header.appendChild(info);
+    header.appendChild(actions);
+
+    const content = document.createElement('div');
+    content.className = 'email-content';
+    
+    const orderHistory = draft.customer.orders.slice(0, SAMPLE_ORDERS_PER_CUSTOMER).map(order => 
+        `<div class="order-item">
+            <strong>${order.orderId}</strong> - ${order.orderDate}: ${order.items}
+        </div>`
+    ).join('');
+
+    content.innerHTML = `
+        <div class="email-subject"><strong>Subject:</strong> ${draft.subject}</div>
+        <div class="email-body">${draft.body}</div>
+        <div class="order-history">
+            <h4>Recent Orders:</h4>
+            ${orderHistory}
+        </div>
+    `;
+
+    div.appendChild(header);
+    div.appendChild(content);
+
+    return div;
+}
+
+function toggleEmail(index) {
+    const emailItem = document.getElementById(`email-${index}`);
+    emailItem.classList.toggle('expanded');
+}
+
+function markAsSent(index) {
+    appState.emailDrafts[index].sent = true;
+    
+    const emailItem = document.getElementById(`email-${index}`);
+    const actions = emailItem.querySelector('.email-actions');
+    actions.innerHTML = '<div class="sent-status">✓ Sent</div>';
+    
+    // Re-add expand icon
+    const expandIcon = document.createElement('div');
+    expandIcon.className = 'expand-icon';
+    expandIcon.textContent = '▼';
+    actions.appendChild(expandIcon);
+}
+
+// Perplexity API call function using Netlify serverless function
+async function callPerplexityAPI(prompt, systemPrompt = 'You are a helpful assistant for a tailoring business in Singapore.') {
+    try {
+        const response = await fetch('/.netlify/functions/perplexity', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                prompt: prompt,
+                systemPrompt: systemPrompt
+            })
+        });
+
+        if (!response.ok) {
+            // If serverless function fails, fall back to mock response
+            console.warn('API call failed, using mock response');
+            return getMockResponse(prompt);
+        }
+
+        const data = await response.json();
+        return data.content;
+    } catch (error) {
+        console.error('Perplexity API error:', error);
+        // Fallback to mock response for development
+        console.warn('Using mock response for development/testing');
+        return getMockResponse(prompt);
+    }
+}
+
+// Mock response generator for development/testing
+function getMockResponse(prompt) {
+    if (prompt.includes('competitor') || prompt.includes('Competitor')) {
+        return `Based on competitive analysis of Singapore's tailoring market:
+
+**Key Findings:**
+- Premium competitors focus on sustainable fabrics and eco-friendly materials
+- Quick turnaround times (24-48 hours) are major selling points
+- Virtual fitting consultations gaining popularity post-pandemic
+- Year-end festive promotions heavily advertised (15-25% off)
+- Emphasis on bespoke craftsmanship and personalized service
+- Social media presence strong on Instagram and LinkedIn
+- Wedding season packages with complimentary accessories
+
+**Pricing Insights:**
+- Custom suits range from SGD 800-2500
+- Shirt packages: SGD 200-400 for 3 shirts
+- Express alterations at premium (50% surcharge)
+
+**Opportunities:**
+- Personalized follow-up with past customers
+- Seasonal fabric collections
+- Loyalty programs underutilized`;
+    } else if (prompt.includes('seasonal') || prompt.includes('Seasonal') || prompt.includes('trends')) {
+        return `Seasonal Fashion Trends for ${appState.location} - ${appState.currentDate}:
+
+**Current Climate:**
+- Late November: Transitioning to year-end festive season
+- Tropical climate remains warm (26-30°C), but evening events common
+
+**Trending Styles:**
+- Darker, richer colors for evening events (navy, charcoal, burgundy)
+- Lightweight wool blends for Singapore's climate
+- Slim-fit silhouettes with modern cuts
+- Patterned shirts and bold accessories for festive occasions
+
+**Key Events Driving Demand:**
+- Christmas parties and corporate year-end events
+- New Year celebrations and galas
+- Wedding season peak (November-February)
+- Chinese New Year preparations (January-February)
+
+**Fabric Trends:**
+- Breathable wool blends and cotton
+- Linen still popular for daytime wear
+- Velvet accents for festive touch
+- Performance fabrics with stretch
+
+**Customer Preferences:**
+- Quick turnaround for last-minute events
+- Versatile pieces (dress-down Friday to evening events)
+- Investment in quality over fast fashion
+- Sustainable and eco-conscious choices`;
+    } else if (prompt.includes('email') || prompt.includes('Email')) {
+        const customerName = prompt.match(/Name: ([^\n]+)/)?.[1] || 'Valued Customer';
+        return `Subject: ${customerName}, Exclusive Year-End Tailoring Offer Just for You
+
+Dear ${customerName},
+
+As we approach the festive season, I wanted to reach out personally to thank you for your continued trust in our craftsmanship.
+
+Looking at your recent purchases, I can see you appreciate quality tailoring—from your elegant navy suit to your sophisticated grey blazer. This season, we're seeing a wonderful trend toward richer evening colors and versatile pieces that transition seamlessly from boardroom to celebration.
+
+I'd love to invite you for a complimentary consultation to explore our new winter collection, featuring luxurious fabrics perfect for the upcoming year-end events. Plus, as a valued client, enjoy 20% off your next order when booked before December 15th.
+
+With wedding season and holiday celebrations approaching, now is the perfect time to ensure you're dressed impeccably for every occasion.
+
+Shall we schedule a fitting this week? Reply to this email or call us directly.
+
+Best regards,
+Your Personal Tailor
+[Signature]`;
+    }
+    return 'Mock response generated for development purposes.';
+}
+
+// Utility functions
+function showError(message) {
+    document.getElementById('error-message').textContent = message;
+    document.getElementById('error-section').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function hideError() {
+    document.getElementById('error-section').classList.add('hidden');
+}
+
+function startOver() {
+    appState = {
+        currentStep: 1,
+        competitors: [],
+        competitorInsights: '',
+        seasonalTrends: '',
+        location: 'Singapore',
+        currentDate: appState.currentDate,
+        customers: customerData,
+        emailDrafts: []
+    };
+    
+    // Reset competitor inputs
+    const competitorList = document.getElementById('competitor-list');
+    competitorList.innerHTML = `
+        <div class="competitor-entry">
+            <input type="text" class="competitor-name" placeholder="Competitor Name (e.g., Premium Tailors)">
+            <input type="url" class="competitor-url" placeholder="Website URL">
+            <input type="url" class="competitor-linkedin" placeholder="LinkedIn URL (optional)">
+        </div>
+    `;
+    
+    goToStep(1);
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
