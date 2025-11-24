@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Engagement - Email Draft Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📧 Customer Engagement Email Generator</h1>
+            <p class="subtitle">AI-Powered Email Drafts for Tailoring Business in Singapore</p>
+        </header>
+
+        <div class="card">
+            <h2>📊 Input Information</h2>
+            
+            <div class="form-section">
+                <label for="location">Location:</label>
+                <input type="text" id="location" value="Singapore" placeholder="Enter location">
+            </div>
+
+            <div class="form-section">
+                <label>Current Date:</label>
+                <input type="text" id="current-date" readonly>
+            </div>
+
+            <div class="form-section">
+                <label>Competitor URLs (comma-separated):</label>
+                <textarea id="competitor-urls" rows="4" placeholder="Enter competitor website URLs and LinkedIn pages, separated by commas&#10;Example: https://competitor1.com, https://linkedin.com/company/competitor2"></textarea>
+            </div>
+
+            <button id="generate-btn" class="primary-btn">Generate Email Drafts</button>
+        </div>
+
+        <div id="progress-section" class="card hidden">
+            <h2>⚙️ Processing Status</h2>
+            <div class="progress-steps">
+                <div class="progress-step" id="step-customer-data">
+                    <div class="step-indicator">
+                        <span class="step-icon">⏳</span>
+                        <span class="step-text">Loading customer data...</span>
+                    </div>
+                </div>
+                <div class="progress-step" id="step-competitor">
+                    <div class="step-indicator">
+                        <span class="step-icon">⏳</span>
+                        <span class="step-text">Analyzing competitor insights...</span>
+                    </div>
+                </div>
+                <div class="progress-step" id="step-seasonal">
+                    <div class="step-indicator">
+                        <span class="step-icon">⏳</span>
+                        <span class="step-text">Analyzing seasonal trends...</span>
+                    </div>
+                </div>
+                <div class="progress-step" id="step-recommendations">
+                    <div class="step-indicator">
+                        <span class="step-icon">⏳</span>
+                        <span class="step-text">Generating personalized recommendations...</span>
+                    </div>
+                </div>
+                <div class="progress-step" id="step-emails">
+                    <div class="step-indicator">
+                        <span class="step-icon">⏳</span>
+                        <span class="step-text">Creating email drafts...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="results-section" class="card hidden">
+            <h2>📬 Email Drafts</h2>
+            <div id="email-list"></div>
+        </div>
+
+        <div id="error-section" class="card error-card hidden">
+            <h2>❌ Error</h2>
+            <p id="error-message"></p>
+        </div>
+    </div>
+
+    <script src="customerData.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
