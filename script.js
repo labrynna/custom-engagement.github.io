@@ -2,6 +2,8 @@
 
 // Constants
 const SAMPLE_ORDERS_PER_CUSTOMER = 3;
+const SENDER_NAME = 'Nil Larom';
+const COMPANY_NAME = 'Ins[ai]ght Meanswear';
 
 // State management
 let appState = {
@@ -381,10 +383,10 @@ Subject: [Compelling, personalized subject line]
 [Email body - 200-250 words, warm and sophisticated]
 
 Best regards,
-Nil Larom
-Ins[ai]ght Meanswear`;
+${SENDER_NAME}
+${COMPANY_NAME}`;
 
-    const response = await callPerplexityAPI(prompt, 'You are an expert email copywriter for luxury bespoke tailoring. Write elegant, highly personalized emails that feel like they come from a caring craftsman who knows the customer personally. Never use asterisks or hashtags in your writing. Always sign the email as "Nil Larom" from "Ins[ai]ght Meanswear".');
+    const response = await callPerplexityAPI(prompt, `You are an expert email copywriter for luxury bespoke tailoring. Write elegant, highly personalized emails that feel like they come from a caring craftsman who knows the customer personally. Never use asterisks or hashtags in your writing. Always sign the email as "${SENDER_NAME}" from "${COMPANY_NAME}".`);
     
     // Clean the response of any asterisks or hashtags
     const cleanedResponse = cleanAIText(response);
