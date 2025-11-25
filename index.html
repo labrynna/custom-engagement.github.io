@@ -9,8 +9,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>📧 Customer Engagement Email Generator</h1>
-            <p class="subtitle">AI-Powered Email Drafts for Tailoring Business in Singapore</p>
+            <h1>Customer Engagement Email Generator</h1>
+            <p class="subtitle">AI-Powered Email Drafts for Bespoke Tailoring</p>
         </header>
 
         <!-- Progress Tracker -->
@@ -35,19 +35,22 @@
 
         <!-- Step 1: Competitor Analysis -->
         <div id="step-1" class="card step-content">
-            <h2>🔍 Step 1: Competitor Analysis</h2>
-            <p class="step-description">Enter your competitors' information to analyze their latest updates and strategies.</p>
+            <h2>Step 1: Competitor Analysis</h2>
+            <p class="step-description">Enter your competitors' information below. Include names, websites, and email links - the AI will automatically identify and organize them.</p>
             
             <div class="form-section">
-                <label>Competitor Names and URLs:</label>
-                <div class="competitor-inputs" id="competitor-list">
-                    <div class="competitor-entry">
-                        <input type="text" class="competitor-name" placeholder="Competitor Name (e.g., Premium Tailors)">
-                        <input type="url" class="competitor-url" placeholder="Website URL">
-                        <input type="url" class="competitor-linkedin" placeholder="LinkedIn URL (optional)">
-                    </div>
-                </div>
-                <button type="button" class="secondary-btn" onclick="addCompetitorEntry()">+ Add Another Competitor</button>
+                <label for="competitor-input">Competitor Names, Websites & Email Links:</label>
+                <textarea id="competitor-input" class="competitor-textarea" rows="8" placeholder="Enter competitor information here. For example:
+
+Premium Tailors
+https://www.premiumtailors.com
+contact@premiumtailors.com
+
+Kevin Seah
+https://kevinseah.com
+info@kevinseah.com
+
+You can also enter multiple links and names in any format - the AI will identify them automatically."></textarea>
             </div>
 
             <div class="button-group">
@@ -57,25 +60,25 @@
 
         <!-- Step 1: Progress & Results -->
         <div id="step-1-progress" class="card hidden">
-            <h2>⚙️ Analyzing Competitors...</h2>
+            <h2>Analyzing Competitors...</h2>
             <div class="progress-indicator">
                 <div class="spinner"></div>
-                <p>Searching competitor websites and LinkedIn for latest updates...</p>
+                <p>Searching competitor websites and analyzing their latest updates...</p>
             </div>
         </div>
 
         <div id="step-1-results" class="card hidden">
-            <h2>📊 Competitor Insights Summary</h2>
+            <h2>Competitor Insights Summary</h2>
             <div id="competitor-insights-content" class="insights-content"></div>
             <div class="button-group">
-                <button class="secondary-btn" onclick="goToStep(1)">← Edit Competitors</button>
-                <button class="primary-btn" onclick="goToStep(2)">Continue to Seasonal Trends →</button>
+                <button class="secondary-btn" onclick="goToStep(1)">Edit Competitors</button>
+                <button class="primary-btn" onclick="goToStep(2)">Continue to Seasonal Trends</button>
             </div>
         </div>
 
         <!-- Step 2: Seasonal Trends -->
         <div id="step-2" class="card step-content hidden">
-            <h2>🌤️ Step 2: Seasonal Trends Analysis</h2>
+            <h2>Step 2: Seasonal Trends Analysis</h2>
             <p class="step-description">Analyze current seasonal trends for menswear in your location.</p>
             
             <div class="form-section">
@@ -89,14 +92,14 @@
             </div>
 
             <div class="button-group">
-                <button class="secondary-btn" onclick="goToStep(1, true)">← Back to Competitors</button>
+                <button class="secondary-btn" onclick="goToStep(1, true)">Back to Competitors</button>
                 <button class="primary-btn" onclick="analyzeSeasonalTrends()">Analyze Seasonal Trends</button>
             </div>
         </div>
 
         <!-- Step 2: Progress & Results -->
         <div id="step-2-progress" class="card hidden">
-            <h2>⚙️ Analyzing Seasonal Trends...</h2>
+            <h2>Analyzing Seasonal Trends...</h2>
             <div class="progress-indicator">
                 <div class="spinner"></div>
                 <p>Analyzing seasonal fashion trends for tailored menswear...</p>
@@ -104,17 +107,17 @@
         </div>
 
         <div id="step-2-results" class="card hidden">
-            <h2>📈 Seasonal Trends Summary</h2>
+            <h2>Seasonal Trends Summary</h2>
             <div id="seasonal-insights-content" class="insights-content"></div>
             <div class="button-group">
-                <button class="secondary-btn" onclick="goToStep(2)">← Edit Location</button>
-                <button class="primary-btn" onclick="goToStep(3)">Continue to Customer Review →</button>
+                <button class="secondary-btn" onclick="goToStep(2)">Edit Location</button>
+                <button class="primary-btn" onclick="goToStep(3)">Continue to Customer Review</button>
             </div>
         </div>
 
         <!-- Step 3: Customer Database Review -->
         <div id="step-3" class="card step-content hidden">
-            <h2>👥 Step 3: Customer Database Review</h2>
+            <h2>Step 3: Customer Database Review</h2>
             <p class="step-description">Review your customer database before generating personalized emails.</p>
             
             <div class="customer-summary">
@@ -135,14 +138,14 @@
             <div class="customer-list-preview" id="customer-preview"></div>
 
             <div class="button-group">
-                <button class="secondary-btn" onclick="goToStep(2, true)">← Back to Seasonal Trends</button>
+                <button class="secondary-btn" onclick="goToStep(2, true)">Back to Seasonal Trends</button>
                 <button class="primary-btn" onclick="startEmailGeneration()">Generate Emails for All Customers</button>
             </div>
         </div>
 
         <!-- Step 4: Email Generation Progress -->
         <div id="step-4-progress" class="card hidden">
-            <h2>✉️ Generating Personalized Emails...</h2>
+            <h2>Generating Personalized Emails...</h2>
             <div class="progress-indicator">
                 <div class="spinner"></div>
                 <p id="email-progress-text">Preparing to generate emails...</p>
@@ -155,17 +158,17 @@
 
         <!-- Step 4: Final Results -->
         <div id="step-4-results" class="card hidden">
-            <h2>📬 Email Drafts Ready</h2>
-            <p class="success-message">✅ All personalized email drafts have been generated successfully!</p>
+            <h2>Email Drafts Ready</h2>
+            <p class="success-message">All personalized email drafts have been generated successfully!</p>
             <div id="email-list"></div>
             <div class="button-group">
-                <button class="secondary-btn" onclick="startOver()">← Start Over</button>
+                <button class="secondary-btn" onclick="startOver()">Start Over</button>
             </div>
         </div>
 
         <!-- Error Section -->
         <div id="error-section" class="card error-card hidden">
-            <h2>❌ Error</h2>
+            <h2>Error</h2>
             <p id="error-message"></p>
             <button class="secondary-btn" onclick="hideError()">Close</button>
         </div>
