@@ -159,19 +159,39 @@ Provide a comprehensive summary of competitive insights that would be useful for
 
 // Convert basic markdown to HTML for better display
 function markdownToHtml(text) {
-    return text
+    // First pass: convert markdown syntax
+    let html = text
         // Bold text: **text** -> <strong>text</strong>
         .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-        // Bullet points: - item -> <li>item</li> (at start of line)
-        .replace(/^- (.+)$/gm, '<li>$1</li>')
         // Horizontal rules: --- -> <hr>
-        .replace(/^---$/gm, '<hr>')
-        // Wrap consecutive <li> elements in <ul>
-        .replace(/(<li>[\s\S]*?<\/li>)(\n(?!<li>)|$)/g, '<ul>$1</ul>')
-        // Clean up multiple <ul> tags
-        .replace(/<\/ul>\n*<ul>/g, '\n')
-        // Line breaks
-        .replace(/\n/g, '<br>');
+        .replace(/^---$/gm, '<hr>');
+    
+    // Process lists: find consecutive lines starting with "- " and wrap in <ul>
+    const lines = html.split('\n');
+    const result = [];
+    let inList = false;
+    
+    for (const line of lines) {
+        if (line.match(/^- .+/)) {
+            if (!inList) {
+                result.push('<ul>');
+                inList = true;
+            }
+            result.push('<li>' + line.substring(2) + '</li>');
+        } else {
+            if (inList) {
+                result.push('</ul>');
+                inList = false;
+            }
+            result.push(line);
+        }
+    }
+    if (inList) {
+        result.push('</ul>');
+    }
+    
+    // Join and convert remaining line breaks
+    return result.join('\n').replace(/\n/g, '<br>');
 }
 
 function displayCompetitorInsights(insights) {
@@ -471,7 +491,7 @@ async function callPerplexityAPI(prompt, systemPrompt = 'You are a helpful assis
     });
 
     if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response from API' }));
         throw new Error(errorData.error || `API request failed with status ${response.status}. Please ensure the PERPLEXITY_API_KEY is configured.`);
     }
 
