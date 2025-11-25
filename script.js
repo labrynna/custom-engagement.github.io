@@ -157,11 +157,29 @@ Provide a comprehensive summary of competitive insights that would be useful for
     }
 }
 
+// Convert basic markdown to HTML for better display
+function markdownToHtml(text) {
+    return text
+        // Bold text: **text** -> <strong>text</strong>
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        // Bullet points: - item -> <li>item</li> (at start of line)
+        .replace(/^- (.+)$/gm, '<li>$1</li>')
+        // Horizontal rules: --- -> <hr>
+        .replace(/^---$/gm, '<hr>')
+        // Wrap consecutive <li> elements in <ul>
+        .replace(/(<li>[\s\S]*?<\/li>)(\n(?!<li>)|$)/g, '<ul>$1</ul>')
+        // Clean up multiple <ul> tags
+        .replace(/<\/ul>\n*<ul>/g, '\n')
+        // Line breaks
+        .replace(/\n/g, '<br>');
+}
+
 function displayCompetitorInsights(insights) {
     const content = document.getElementById('competitor-insights-content');
     content.innerHTML = `
         <h3>🔍 Competitive Intelligence Summary</h3>
-        <div style="white-space: pre-wrap; line-height: 1.8;">${insights}</div>
+        <span class="ai-badge">✨ AI Generated</span>
+        <div class="insights-text">${markdownToHtml(insights)}</div>
     `;
 }
 
@@ -208,7 +226,8 @@ function displaySeasonalTrends(trends) {
     const content = document.getElementById('seasonal-insights-content');
     content.innerHTML = `
         <h3>🌤️ Seasonal Trends Analysis</h3>
-        <div style="white-space: pre-wrap; line-height: 1.8;">${trends}</div>
+        <span class="ai-badge">✨ AI Generated</span>
+        <div class="insights-text">${markdownToHtml(trends)}</div>
     `;
 }
 
@@ -440,108 +459,24 @@ function markAsSent(index) {
 
 // Perplexity API call function using Netlify serverless function
 async function callPerplexityAPI(prompt, systemPrompt = 'You are a helpful assistant for a tailoring business in Singapore.') {
-    try {
-        const response = await fetch('/.netlify/functions/perplexity', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                prompt: prompt,
-                systemPrompt: systemPrompt
-            })
-        });
+    const response = await fetch('/.netlify/functions/perplexity', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            prompt: prompt,
+            systemPrompt: systemPrompt
+        })
+    });
 
-        if (!response.ok) {
-            // If serverless function fails, fall back to mock response
-            console.warn('API call failed, using mock response');
-            return getMockResponse(prompt);
-        }
-
-        const data = await response.json();
-        return data.content;
-    } catch (error) {
-        console.error('Perplexity API error:', error);
-        // Fallback to mock response for development
-        console.warn('Using mock response for development/testing');
-        return getMockResponse(prompt);
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || `API request failed with status ${response.status}. Please ensure the PERPLEXITY_API_KEY is configured.`);
     }
-}
 
-// Mock response generator for development/testing
-function getMockResponse(prompt) {
-    if (prompt.includes('competitor') || prompt.includes('Competitor')) {
-        return `Based on competitive analysis of Singapore's tailoring market:
-
-**Key Findings:**
-- Premium competitors focus on sustainable fabrics and eco-friendly materials
-- Quick turnaround times (24-48 hours) are major selling points
-- Virtual fitting consultations gaining popularity post-pandemic
-- Year-end festive promotions heavily advertised (15-25% off)
-- Emphasis on bespoke craftsmanship and personalized service
-- Social media presence strong on Instagram and LinkedIn
-- Wedding season packages with complimentary accessories
-
-**Pricing Insights:**
-- Custom suits range from SGD 800-2500
-- Shirt packages: SGD 200-400 for 3 shirts
-- Express alterations at premium (50% surcharge)
-
-**Opportunities:**
-- Personalized follow-up with past customers
-- Seasonal fabric collections
-- Loyalty programs underutilized`;
-    } else if (prompt.includes('seasonal') || prompt.includes('Seasonal') || prompt.includes('trends')) {
-        return `Seasonal Fashion Trends for ${appState.location} - ${appState.currentDate}:
-
-**Current Climate:**
-- Late November: Transitioning to year-end festive season
-- Tropical climate remains warm (26-30°C), but evening events common
-
-**Trending Styles:**
-- Darker, richer colors for evening events (navy, charcoal, burgundy)
-- Lightweight wool blends for Singapore's climate
-- Slim-fit silhouettes with modern cuts
-- Patterned shirts and bold accessories for festive occasions
-
-**Key Events Driving Demand:**
-- Christmas parties and corporate year-end events
-- New Year celebrations and galas
-- Wedding season peak (November-February)
-- Chinese New Year preparations (January-February)
-
-**Fabric Trends:**
-- Breathable wool blends and cotton
-- Linen still popular for daytime wear
-- Velvet accents for festive touch
-- Performance fabrics with stretch
-
-**Customer Preferences:**
-- Quick turnaround for last-minute events
-- Versatile pieces (dress-down Friday to evening events)
-- Investment in quality over fast fashion
-- Sustainable and eco-conscious choices`;
-    } else if (prompt.includes('email') || prompt.includes('Email')) {
-        const customerName = prompt.match(/Name: ([^\n]+)/)?.[1] || 'Valued Customer';
-        return `Subject: ${customerName}, Exclusive Year-End Tailoring Offer Just for You
-
-Dear ${customerName},
-
-As we approach the festive season, I wanted to reach out personally to thank you for your continued trust in our craftsmanship.
-
-Looking at your recent purchases, I can see you appreciate quality tailoring—from your elegant navy suit to your sophisticated grey blazer. This season, we're seeing a wonderful trend toward richer evening colors and versatile pieces that transition seamlessly from boardroom to celebration.
-
-I'd love to invite you for a complimentary consultation to explore our new winter collection, featuring luxurious fabrics perfect for the upcoming year-end events. Plus, as a valued client, enjoy 20% off your next order when booked before December 15th.
-
-With wedding season and holiday celebrations approaching, now is the perfect time to ensure you're dressed impeccably for every occasion.
-
-Shall we schedule a fitting this week? Reply to this email or call us directly.
-
-Best regards,
-Your Personal Tailor
-[Signature]`;
-    }
-    return 'Mock response generated for development purposes.';
+    const data = await response.json();
+    return data.content;
 }
 
 // Utility functions
