@@ -419,6 +419,98 @@ header h1 {
     border: 1px solid #c9a962;
 }
 
+/* Jump to Advice Link */
+.jump-to-advice {
+    margin-bottom: 20px;
+    text-align: right;
+}
+
+.jump-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 0.95em;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+}
+
+.jump-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+/* Insights Section */
+.insights-section {
+    margin-bottom: 25px;
+}
+
+/* Tailored Advice Section */
+.tailored-advice-section {
+    background: linear-gradient(135deg, #f0f9f0 0%, #e8f5e9 100%);
+    padding: 25px;
+    border-radius: 12px;
+    border: 2px solid #4caf50;
+    margin-top: 25px;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15);
+}
+
+.tailored-advice-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.tailored-advice-header h3 {
+    color: #2e7d32;
+    margin: 0;
+    font-size: 1.3em;
+}
+
+.advice-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75em;
+    font-weight: 600;
+}
+
+.tailored-advice-content {
+    line-height: 1.6;
+    font-size: 1.05em;
+    color: #333;
+}
+
+.tailored-advice-content ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 10px 0;
+}
+
+.tailored-advice-content li {
+    padding: 6px 0 6px 25px;
+    position: relative;
+}
+
+.tailored-advice-content li::before {
+    content: '✓';
+    color: #4caf50;
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+}
+
 /* Customer Summary */
 .customer-summary {
     display: grid;

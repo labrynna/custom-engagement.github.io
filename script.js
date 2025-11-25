@@ -2,8 +2,8 @@
 
 // Constants
 const SAMPLE_ORDERS_PER_CUSTOMER = 3;
-const SENDER_NAME = 'Nil Larom';
-const COMPANY_NAME = 'Ins[ai]ght Meanswear';
+const SENDER_NAME = 'Justin';
+const COMPANY_NAME = 'Principle M';
 
 // State management
 let appState = {
@@ -125,7 +125,9 @@ async function analyzeCompetitors() {
 Input provided:
 ${competitorInput}
 
-Please:
+Please provide your analysis in TWO CLEARLY SEPARATED SECTIONS:
+
+SECTION 1 - COMPETITOR INTELLIGENCE:
 1. Identify all competitors mentioned (names, websites, emails)
 2. Research their websites and online presence for:
    - Latest product launches or collections
@@ -133,9 +135,16 @@ Please:
    - Unique selling propositions and services
    - Recent updates, news, or announcements
    - Pricing strategies and positioning
-3. Provide a comprehensive summary of competitive insights that would be useful for planning customer outreach campaigns.
 
-Focus on actionable intelligence for a high-end bespoke tailoring business.`;
+SECTION 2 - TAILORED ADVICE FOR YOUR BUSINESS:
+Based on the competitor analysis above, provide specific, actionable recommendations for a high-end bespoke tailoring business to:
+- Differentiate from competitors
+- Capitalize on market gaps
+- Improve customer engagement strategies
+- Create compelling offers and promotions
+- Enhance competitive positioning
+
+IMPORTANT: Clearly label each section with "COMPETITOR INTELLIGENCE:" and "TAILORED ADVICE:" headers so they can be easily identified.`;
 
         const insights = await callPerplexityAPI(prompt);
         appState.competitorInsights = cleanAIText(insights);
@@ -194,11 +203,76 @@ function markdownToHtml(text) {
 
 function displayCompetitorInsights(insights) {
     const content = document.getElementById('competitor-insights-content');
-    content.innerHTML = `
-        <h3>Competitive Intelligence Summary</h3>
-        <span class="ai-badge">AI Generated</span>
-        <div class="insights-text">${markdownToHtml(insights)}</div>
+    
+    // Parse the insights to separate Competitor Intelligence and Tailored Advice
+    let competitorIntelligence = insights;
+    let tailoredAdvice = '';
+    
+    // Try to find the tailored advice section using various possible headers
+    const tailoredAdviceSplitPatterns = [
+        /SECTION 2[\s\-]*TAILORED ADVICE[\s\-]*FOR YOUR BUSINESS[:\s]*/i,
+        /SECTION 2[\s\-]*TAILORED ADVICE[:\s]*/i,
+        /TAILORED ADVICE FOR YOUR BUSINESS[:\s]*/i,
+        /TAILORED ADVICE[:\s]*/i
+    ];
+    
+    for (const pattern of tailoredAdviceSplitPatterns) {
+        const matchIndex = insights.search(pattern);
+        if (matchIndex !== -1) {
+            competitorIntelligence = insights.substring(0, matchIndex).trim();
+            tailoredAdvice = insights.substring(matchIndex).trim();
+            // Remove the header from tailored advice content
+            tailoredAdvice = tailoredAdvice
+                .replace(/SECTION 2[\s\-]*TAILORED ADVICE[\s\-]*FOR YOUR BUSINESS[:\s]*/i, '')
+                .replace(/SECTION 2[\s\-]*TAILORED ADVICE[:\s]*/i, '')
+                .replace(/TAILORED ADVICE FOR YOUR BUSINESS[:\s]*/i, '')
+                .replace(/TAILORED ADVICE[:\s]*/i, '')
+                .replace(/^FOR YOUR BUSINESS[:\s]*/i, '')
+                .trim();
+            break;
+        }
+    }
+    
+    // Clean up the competitor intelligence section header
+    competitorIntelligence = competitorIntelligence
+        .replace(/SECTION 1[\s\-]*COMPETITOR INTELLIGENCE[:\s]*/gi, '')
+        .replace(/COMPETITOR INTELLIGENCE[:\s]*/gi, '')
+        .replace(/^SECTION 1[\s\-]*/i, '')
+        .trim();
+    
+    // Build the HTML with two distinct sections
+    let html = `
+        <div class="insights-section">
+            <h3>Competitive Intelligence Summary</h3>
+            <span class="ai-badge">AI Generated</span>
+            <div class="insights-text">${markdownToHtml(competitorIntelligence)}</div>
+        </div>
     `;
+    
+    if (tailoredAdvice) {
+        html += `
+        <div class="tailored-advice-section" id="tailored-advice-section">
+            <div class="tailored-advice-header">
+                <h3>Tailored Advice for Your Business</h3>
+                <span class="advice-badge">Actionable Recommendations</span>
+            </div>
+            <div class="tailored-advice-content">${markdownToHtml(tailoredAdvice)}</div>
+        </div>
+        `;
+    }
+    
+    // Add jump link at the top if tailored advice exists
+    if (tailoredAdvice) {
+        html = `
+        <div class="jump-to-advice">
+            <a href="#tailored-advice-section" class="jump-link" onclick="scrollToTailoredAdvice(event)">
+                ➔ Jump to Tailored Advice
+            </a>
+        </div>
+        ` + html;
+    }
+    
+    content.innerHTML = html;
 }
 
 // Step 2: Analyze Seasonal Trends
@@ -571,4 +645,13 @@ function startOver() {
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Smooth scroll to tailored advice section
+function scrollToTailoredAdvice(event) {
+    event.preventDefault();
+    const element = document.getElementById('tailored-advice-section');
+    if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
