@@ -17,14 +17,16 @@ let appState = {
     emailDrafts: []
 };
 
-// Utility function to remove asterisks and hashtags from AI-generated text
+// Utility function to remove asterisks, hashtags, and references from AI-generated text
 function cleanAIText(text) {
     if (!text) return text;
     // Remove asterisks used for bold/italic markdown
     // Remove hashtags used for headers
+    // Remove reference citations like [1], [2], (1), (2), etc.
     return text
         .replace(/\*+/g, '')
-        .replace(/#/g, '');
+        .replace(/#/g, '')
+        .replace(/\[\d+\]|\(\d+\)/g, '');
 }
 
 // Initialize the app
