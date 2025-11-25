@@ -415,7 +415,7 @@ function createEmailItem(draft, index) {
     actions.className = 'email-actions';
 
     if (draft.sent) {
-        actions.innerHTML = '<div class="sent-status">✓ Sent</div>';
+        actions.innerHTML = '<div class="sent-status">Sent</div>';
     } else {
         const sendBtn = document.createElement('button');
         sendBtn.className = 'send-btn';
@@ -429,7 +429,7 @@ function createEmailItem(draft, index) {
 
     const expandIcon = document.createElement('div');
     expandIcon.className = 'expand-icon';
-    expandIcon.textContent = '▼';
+    expandIcon.textContent = 'v';
     actions.appendChild(expandIcon);
 
     header.appendChild(info);
@@ -469,12 +469,12 @@ function markAsSent(index) {
     
     const emailItem = document.getElementById(`email-${index}`);
     const actions = emailItem.querySelector('.email-actions');
-    actions.innerHTML = '<div class="sent-status">✓ Sent</div>';
+    actions.innerHTML = '<div class="sent-status">Sent</div>';
     
     // Re-add expand icon
     const expandIcon = document.createElement('div');
     expandIcon.className = 'expand-icon';
-    expandIcon.textContent = '▼';
+    expandIcon.textContent = 'v';
     actions.appendChild(expandIcon);
 }
 
