@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Engagement - Email Draft Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📧 Customer Engagement Email Generator</h1>
+            <p class="subtitle">AI-Powered Email Drafts for Tailoring Business in Singapore</p>
+        </header>
+
+        <!-- Progress Tracker -->
+        <div class="wizard-progress">
+            <div class="wizard-step active" data-step="1">
+                <div class="step-number">1</div>
+                <div class="step-label">Competitor Analysis</div>
+            </div>
+            <div class="wizard-step" data-step="2">
+                <div class="step-number">2</div>
+                <div class="step-label">Seasonal Trends</div>
+            </div>
+            <div class="wizard-step" data-step="3">
+                <div class="step-number">3</div>
+                <div class="step-label">Customer Review</div>
+            </div>
+            <div class="wizard-step" data-step="4">
+                <div class="step-number">4</div>
+                <div class="step-label">Email Generation</div>
+            </div>
+        </div>
+
+        <!-- Step 1: Competitor Analysis -->
+        <div id="step-1" class="card step-content">
+            <h2>🔍 Step 1: Competitor Analysis</h2>
+            <p class="step-description">Enter your competitors' information to analyze their latest updates and strategies.</p>
+            
+            <div class="form-section">
+                <label>Competitor Names and URLs:</label>
+                <div class="competitor-inputs" id="competitor-list">
+                    <div class="competitor-entry">
+                        <input type="text" class="competitor-name" placeholder="Competitor Name (e.g., Premium Tailors)">
+                        <input type="url" class="competitor-url" placeholder="Website URL">
+                        <input type="url" class="competitor-linkedin" placeholder="LinkedIn URL (optional)">
+                    </div>
+                </div>
+                <button type="button" class="secondary-btn" onclick="addCompetitorEntry()">+ Add Another Competitor</button>
+            </div>
+
+            <div class="button-group">
+                <button class="primary-btn" onclick="analyzeCompetitors()">Analyze Competitors</button>
+            </div>
+        </div>
+
+        <!-- Step 1: Progress & Results -->
+        <div id="step-1-progress" class="card hidden">
+            <h2>⚙️ Analyzing Competitors...</h2>
+            <div class="progress-indicator">
+                <div class="spinner"></div>
+                <p>Searching competitor websites and LinkedIn for latest updates...</p>
+            </div>
+        </div>
+
+        <div id="step-1-results" class="card hidden">
+            <h2>📊 Competitor Insights Summary</h2>
+            <div id="competitor-insights-content" class="insights-content"></div>
+            <div class="button-group">
+                <button class="secondary-btn" onclick="goToStep(1)">← Edit Competitors</button>
+                <button class="primary-btn" onclick="goToStep(2)">Continue to Seasonal Trends →</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Seasonal Trends -->
+        <div id="step-2" class="card step-content hidden">
+            <h2>🌤️ Step 2: Seasonal Trends Analysis</h2>
+            <p class="step-description">Analyze current seasonal trends for menswear in your location.</p>
+            
+            <div class="form-section">
+                <label for="current-date">Current Date:</label>
+                <input type="text" id="current-date" readonly>
+            </div>
+
+            <div class="form-section">
+                <label for="location">Location:</label>
+                <input type="text" id="location" value="Singapore" placeholder="Enter location">
+            </div>
+
+            <div class="button-group">
+                <button class="secondary-btn" onclick="goToStep(1, true)">← Back to Competitors</button>
+                <button class="primary-btn" onclick="analyzeSeasonalTrends()">Analyze Seasonal Trends</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Progress & Results -->
+        <div id="step-2-progress" class="card hidden">
+            <h2>⚙️ Analyzing Seasonal Trends...</h2>
+            <div class="progress-indicator">
+                <div class="spinner"></div>
+                <p>Analyzing seasonal fashion trends for tailored menswear...</p>
+            </div>
+        </div>
+
+        <div id="step-2-results" class="card hidden">
+            <h2>📈 Seasonal Trends Summary</h2>
+            <div id="seasonal-insights-content" class="insights-content"></div>
+            <div class="button-group">
+                <button class="secondary-btn" onclick="goToStep(2)">← Edit Location</button>
+                <button class="primary-btn" onclick="goToStep(3)">Continue to Customer Review →</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Customer Database Review -->
+        <div id="step-3" class="card step-content hidden">
+            <h2>👥 Step 3: Customer Database Review</h2>
+            <p class="step-description">Review your customer database before generating personalized emails.</p>
+            
+            <div class="customer-summary">
+                <div class="summary-card">
+                    <h3>Total Customers</h3>
+                    <div class="summary-value" id="total-customers">0</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Total Orders</h3>
+                    <div class="summary-value" id="total-orders">0</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Avg Orders/Customer</h3>
+                    <div class="summary-value" id="avg-orders">0</div>
+                </div>
+            </div>
+
+            <div class="customer-list-preview" id="customer-preview"></div>
+
+            <div class="button-group">
+                <button class="secondary-btn" onclick="goToStep(2, true)">← Back to Seasonal Trends</button>
+                <button class="primary-btn" onclick="startEmailGeneration()">Generate Emails for All Customers</button>
+            </div>
+        </div>
+
+        <!-- Step 4: Email Generation Progress -->
+        <div id="step-4-progress" class="card hidden">
+            <h2>✉️ Generating Personalized Emails...</h2>
+            <div class="progress-indicator">
+                <div class="spinner"></div>
+                <p id="email-progress-text">Preparing to generate emails...</p>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="email-progress-bar"></div>
+                </div>
+                <p class="progress-count" id="email-progress-count">0 of 0 emails generated</p>
+            </div>
+        </div>
+
+        <!-- Step 4: Final Results -->
+        <div id="step-4-results" class="card hidden">
+            <h2>📬 Email Drafts Ready</h2>
+            <p class="success-message">✅ All personalized email drafts have been generated successfully!</p>
+            <div id="email-list"></div>
+            <div class="button-group">
+                <button class="secondary-btn" onclick="startOver()">← Start Over</button>
+            </div>
+        </div>
+
+        <!-- Error Section -->
+        <div id="error-section" class="card error-card hidden">
+            <h2>❌ Error</h2>
+            <p id="error-message"></p>
+            <button class="secondary-btn" onclick="hideError()">Close</button>
+        </div>
+    </div>
+
+    <script src="customerData.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

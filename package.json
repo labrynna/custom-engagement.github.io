@@ -1,0 +1,26 @@
+{
+  "name": "custom-engagement-app",
+  "version": "1.0.0",
+  "description": "AI-powered customer engagement email draft generator for tailoring business",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'No build step required for static site'",
+    "deploy": "netlify deploy --prod"
+  },
+  "keywords": [
+    "email",
+    "ai",
+    "customer-engagement",
+    "tailoring",
+    "deepseek"
+  ],
+  "author": "Labrynna",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  }
+}
