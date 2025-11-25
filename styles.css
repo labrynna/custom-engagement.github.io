@@ -327,6 +327,54 @@ header h1 {
     margin-bottom: 10px;
 }
 
+/* Insights Text Formatting */
+.insights-text {
+    line-height: 1.8;
+}
+
+.insights-text strong {
+    color: #333;
+}
+
+.insights-text hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 15px 0;
+}
+
+.insights-text ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 10px 0;
+}
+
+.insights-text li {
+    padding: 6px 0 6px 20px;
+    position: relative;
+}
+
+.insights-text li::before {
+    content: '•';
+    color: #667eea;
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+}
+
+/* AI Generated Badge */
+.ai-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
 /* Customer Summary */
 .customer-summary {
     display: grid;
