@@ -6,7 +6,7 @@ const SAMPLE_ORDERS_PER_CUSTOMER = 3;
 // State management
 let appState = {
     currentStep: 1,
-    competitors: [],
+    competitorInput: '',
     competitorInsights: '',
     seasonalTrends: '',
     location: 'Singapore',
@@ -14,6 +14,16 @@ let appState = {
     customers: [],
     emailDrafts: []
 };
+
+// Utility function to remove asterisks and hashtags from AI-generated text
+function cleanAIText(text) {
+    if (!text) return text;
+    // Remove asterisks used for bold/italic markdown
+    // Remove hashtags used for headers
+    return text
+        .replace(/\*+/g, '')
+        .replace(/#/g, '');
+}
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', () => {
@@ -83,67 +93,52 @@ function goToStep(stepNumber, showResults = false) {
 
 // Add competitor entry
 function addCompetitorEntry() {
-    const competitorList = document.getElementById('competitor-list');
-    const newEntry = document.createElement('div');
-    newEntry.className = 'competitor-entry';
-    newEntry.innerHTML = `
-        <input type="text" class="competitor-name" placeholder="Competitor Name">
-        <input type="url" class="competitor-url" placeholder="Website URL">
-        <input type="url" class="competitor-linkedin" placeholder="LinkedIn URL (optional)">
-    `;
-    competitorList.appendChild(newEntry);
+    // This function is no longer needed with the single text field approach
+    // Kept for backward compatibility
+    console.log('addCompetitorEntry is deprecated - using single text field');
 }
 
 // Step 1: Analyze Competitors
 async function analyzeCompetitors() {
-    // Collect competitor data
-    const entries = document.querySelectorAll('.competitor-entry');
-    appState.competitors = [];
+    // Get competitor data from single text field
+    const competitorInput = document.getElementById('competitor-input').value.trim();
     
-    entries.forEach(entry => {
-        const name = entry.querySelector('.competitor-name').value.trim();
-        const url = entry.querySelector('.competitor-url').value.trim();
-        const linkedin = entry.querySelector('.competitor-linkedin').value.trim();
-        
-        if (name && url) {
-            appState.competitors.push({ name, url, linkedin });
-        }
-    });
-    
-    if (appState.competitors.length === 0) {
-        showError('Please enter at least one competitor with name and website URL.');
+    if (!competitorInput) {
+        showError('Please enter competitor information (names, websites, or email links).');
         return;
     }
+    
+    appState.competitorInput = competitorInput;
     
     // Show progress
     document.getElementById('step-1').classList.add('hidden');
     document.getElementById('step-1-progress').classList.remove('hidden');
     
     try {
-        // Build prompt for Perplexity
-        const competitorList = appState.competitors.map(c => 
-            `- ${c.name}: ${c.url}${c.linkedin ? ` (LinkedIn: ${c.linkedin})` : ''}`
-        ).join('\n');
-        
-        const prompt = `Research and analyze the following tailoring/menswear competitors in Singapore and their latest updates:
+        // Build prompt for Perplexity - let AI identify the competitors from the input
+        const prompt = `Analyze the following competitor information for a bespoke menswear tailoring business. The input may contain competitor names, website URLs, email addresses, and other details in various formats. Please identify and research each competitor mentioned.
 
-${competitorList}
+Input provided:
+${competitorInput}
 
-Please search their websites and social media (LinkedIn if provided) for:
-1. Latest product launches or collections
-2. Current promotions or special offers
-3. Unique selling propositions and services
-4. Recent updates, news, or announcements
-5. Pricing strategies and positioning
+Please:
+1. Identify all competitors mentioned (names, websites, emails)
+2. Research their websites and online presence for:
+   - Latest product launches or collections
+   - Current promotions or special offers
+   - Unique selling propositions and services
+   - Recent updates, news, or announcements
+   - Pricing strategies and positioning
+3. Provide a comprehensive summary of competitive insights that would be useful for planning customer outreach campaigns.
 
-Provide a comprehensive summary of competitive insights that would be useful for a tailoring business planning customer outreach campaigns.`;
+Focus on actionable intelligence for a high-end bespoke tailoring business.`;
 
         const insights = await callPerplexityAPI(prompt);
-        appState.competitorInsights = insights;
+        appState.competitorInsights = cleanAIText(insights);
         
         // Show results
         document.getElementById('step-1-progress').classList.add('hidden');
-        displayCompetitorInsights(insights);
+        displayCompetitorInsights(appState.competitorInsights);
         document.getElementById('step-1-results').classList.remove('hidden');
         
         // Update wizard progress
@@ -159,12 +154,11 @@ Provide a comprehensive summary of competitive insights that would be useful for
 
 // Convert basic markdown to HTML for better display
 function markdownToHtml(text) {
-    // First pass: convert markdown syntax
-    let html = text
-        // Bold text: **text** -> <strong>text</strong>
-        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-        // Horizontal rules: --- -> <hr>
-        .replace(/^---$/gm, '<hr>');
+    // Text should already be cleaned, but ensure it is
+    let cleanedText = cleanAIText(text);
+    
+    // Convert markdown syntax (without asterisks/hashtags since they're cleaned)
+    let html = cleanedText;
     
     // Process lists: find consecutive lines starting with "- " and wrap in <ul>
     const lines = html.split('\n');
@@ -197,8 +191,8 @@ function markdownToHtml(text) {
 function displayCompetitorInsights(insights) {
     const content = document.getElementById('competitor-insights-content');
     content.innerHTML = `
-        <h3>🔍 Competitive Intelligence Summary</h3>
-        <span class="ai-badge">✨ AI Generated</span>
+        <h3>Competitive Intelligence Summary</h3>
+        <span class="ai-badge">AI Generated</span>
         <div class="insights-text">${markdownToHtml(insights)}</div>
     `;
 }
@@ -224,11 +218,11 @@ Please research and provide:
 Focus on actionable insights for a bespoke tailoring business planning customer engagement campaigns.`;
 
         const trends = await callPerplexityAPI(prompt);
-        appState.seasonalTrends = trends;
+        appState.seasonalTrends = cleanAIText(trends);
         
         // Show results
         document.getElementById('step-2-progress').classList.add('hidden');
-        displaySeasonalTrends(trends);
+        displaySeasonalTrends(appState.seasonalTrends);
         document.getElementById('step-2-results').classList.remove('hidden');
         
         // Update wizard progress
@@ -245,8 +239,8 @@ Focus on actionable insights for a bespoke tailoring business planning customer 
 function displaySeasonalTrends(trends) {
     const content = document.getElementById('seasonal-insights-content');
     content.innerHTML = `
-        <h3>🌤️ Seasonal Trends Analysis</h3>
-        <span class="ai-badge">✨ AI Generated</span>
+        <h3>Seasonal Trends Analysis</h3>
+        <span class="ai-badge">AI Generated</span>
         <div class="insights-text">${markdownToHtml(trends)}</div>
     `;
 }
@@ -332,7 +326,7 @@ async function generateCustomerEmail(customer) {
         `${o.orderDate}: ${o.items} (Order ${o.orderId})`
     ).join('\n');
     
-    const prompt = `Write a personalized customer engagement email for a bespoke tailoring business.
+    const prompt = `Write a highly personalized customer engagement email for a luxury bespoke tailoring business.
 
 Customer Information:
 - Name: ${customer.customerName}
@@ -340,33 +334,40 @@ Customer Information:
 - Recent Purchase History:
 ${orderDetails}
 
-Context for Personalization:
-1. Competitive Landscape: ${appState.competitorInsights.substring(0, 400)}...
+Background context (use to inform the tone and suggestions, but DO NOT mention competitors or competitive analysis directly):
+${appState.competitorInsights.substring(0, 500)}
 
-2. Seasonal Trends: ${appState.seasonalTrends.substring(0, 400)}...
+Seasonal context (use naturally without explicitly citing as "trends"):
+${appState.seasonalTrends.substring(0, 500)}
 
-Please create a warm, professional email that:
-- References their specific past purchases naturally
-- Suggests relevant products/services based on seasonal trends
-- Creates urgency with timely seasonal/event context
-- Differentiates from competitors
-- Includes a clear call-to-action
-- Maintains a personalized, conversational tone
+Create a warm, sophisticated email that:
+- Opens with a genuine, personal touch that makes the customer feel valued
+- References their specific past purchases naturally and thoughtfully
+- Suggests relevant products or services that complement their previous purchases
+- Weaves in timely seasonal or event-related context naturally (without saying "seasonal trends suggest...")
+- Offers exclusive value that feels personalized to them
+- Maintains an elegant, understated luxury tone befitting a high-end tailor
+- Includes a clear but non-pushy call-to-action
+- Avoids any mention of competitors, market analysis, or competitive research
+- Does not use asterisks (*) or hashtags (#) anywhere in the text
 
 Format:
-Subject: [Compelling subject line]
+Subject: [Compelling, personalized subject line]
 
-[Email body - 200-250 words]
+[Email body - 200-250 words, warm and sophisticated]
 
 Best regards,
 [Signature]`;
 
-    const response = await callPerplexityAPI(prompt, 'You are an expert email marketing specialist for luxury tailoring businesses.');
+    const response = await callPerplexityAPI(prompt, 'You are an expert email copywriter for luxury bespoke tailoring. Write elegant, highly personalized emails that feel like they come from a caring craftsman who knows the customer personally. Never use asterisks or hashtags in your writing.');
+    
+    // Clean the response of any asterisks or hashtags
+    const cleanedResponse = cleanAIText(response);
     
     // Parse subject and body
-    const lines = response.split('\n');
+    const lines = cleanedResponse.split('\n');
     let subject = 'Your Personalized Tailoring Update';
-    let body = response;
+    let body = cleanedResponse;
     
     for (let j = 0; j < lines.length; j++) {
         if (lines[j].toLowerCase().startsWith('subject:')) {
@@ -378,8 +379,8 @@ Best regards,
     
     return {
         customer: customer,
-        subject: subject,
-        body: body,
+        subject: cleanAIText(subject),
+        body: cleanAIText(body),
         sent: false
     };
 }
@@ -513,7 +514,7 @@ function hideError() {
 function startOver() {
     appState = {
         currentStep: 1,
-        competitors: [],
+        competitorInput: '',
         competitorInsights: '',
         seasonalTrends: '',
         location: 'Singapore',
@@ -522,15 +523,8 @@ function startOver() {
         emailDrafts: []
     };
     
-    // Reset competitor inputs
-    const competitorList = document.getElementById('competitor-list');
-    competitorList.innerHTML = `
-        <div class="competitor-entry">
-            <input type="text" class="competitor-name" placeholder="Competitor Name (e.g., Premium Tailors)">
-            <input type="url" class="competitor-url" placeholder="Website URL">
-            <input type="url" class="competitor-linkedin" placeholder="LinkedIn URL (optional)">
-        </div>
-    `;
+    // Reset competitor input
+    document.getElementById('competitor-input').value = '';
     
     goToStep(1);
 }
