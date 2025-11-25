@@ -255,20 +255,44 @@ function showCustomerReview() {
     document.getElementById('total-orders').textContent = totalOrders;
     document.getElementById('avg-orders').textContent = avgOrders;
     
-    // Display customer preview
+    // Display customer preview with expandable order details
     const preview = document.getElementById('customer-preview');
-    preview.innerHTML = appState.customers.map(customer => `
-        <div class="customer-preview-item">
+    preview.innerHTML = appState.customers.map((customer, index) => {
+        const orderDetailsHtml = customer.orders.map(order => 
+            `<div class="customer-order-detail">
+                <strong>${order.orderId}</strong> - ${order.orderDate}: ${order.items}
+            </div>`
+        ).join('');
+        
+        return `
+        <div class="customer-preview-item" onclick="toggleCustomerOrders(${index})">
             <div>
                 <div class="customer-name-preview">${customer.customerName}</div>
                 <div class="customer-orders-preview">ID: ${customer.customerId}</div>
             </div>
-            <div class="customer-orders-preview">${customer.orders.length} orders</div>
+            <div class="customer-orders-preview">${customer.orders.length} orders <span class="customer-expand-icon" id="customer-expand-${index}">▼</span></div>
         </div>
-    `).join('');
+        <div class="customer-orders-details hidden" id="customer-orders-${index}">
+            ${orderDetailsHtml}
+        </div>
+    `}).join('');
     
     document.getElementById('step-3').classList.remove('hidden');
     document.querySelector('.wizard-step[data-step="3"]').classList.add('completed');
+}
+
+// Toggle customer order details visibility
+function toggleCustomerOrders(index) {
+    const ordersContainer = document.getElementById(`customer-orders-${index}`);
+    const expandIcon = document.getElementById(`customer-expand-${index}`);
+    
+    if (ordersContainer.classList.contains('hidden')) {
+        ordersContainer.classList.remove('hidden');
+        expandIcon.textContent = '▲';
+    } else {
+        ordersContainer.classList.add('hidden');
+        expandIcon.textContent = '▼';
+    }
 }
 
 // Step 4: Generate Emails
@@ -357,9 +381,10 @@ Subject: [Compelling, personalized subject line]
 [Email body - 200-250 words, warm and sophisticated]
 
 Best regards,
-[Signature]`;
+Nil Larom
+Ins[ai]ght Meanswear`;
 
-    const response = await callPerplexityAPI(prompt, 'You are an expert email copywriter for luxury bespoke tailoring. Write elegant, highly personalized emails that feel like they come from a caring craftsman who knows the customer personally. Never use asterisks or hashtags in your writing.');
+    const response = await callPerplexityAPI(prompt, 'You are an expert email copywriter for luxury bespoke tailoring. Write elegant, highly personalized emails that feel like they come from a caring craftsman who knows the customer personally. Never use asterisks or hashtags in your writing. Always sign the email as "Nil Larom" from "Ins[ai]ght Meanswear".');
     
     // Clean the response of any asterisks or hashtags
     const cleanedResponse = cleanAIText(response);
@@ -465,17 +490,28 @@ function toggleEmail(index) {
 }
 
 function markAsSent(index) {
-    appState.emailDrafts[index].sent = true;
-    
     const emailItem = document.getElementById(`email-${index}`);
     const actions = emailItem.querySelector('.email-actions');
-    actions.innerHTML = '<div class="sent-status">Sent</div>';
     
-    // Re-add expand icon
-    const expandIcon = document.createElement('div');
-    expandIcon.className = 'expand-icon';
-    expandIcon.textContent = 'v';
-    actions.appendChild(expandIcon);
+    // Show loading spinner
+    const sendBtn = actions.querySelector('.send-btn');
+    if (sendBtn) {
+        sendBtn.innerHTML = '<span class="send-spinner"></span>';
+        sendBtn.disabled = true;
+    }
+    
+    // After 1 second, show "Sent" status
+    setTimeout(() => {
+        appState.emailDrafts[index].sent = true;
+        
+        actions.innerHTML = '<div class="sent-status">✓ Sent</div>';
+        
+        // Re-add expand icon
+        const expandIcon = document.createElement('div');
+        expandIcon.className = 'expand-icon';
+        expandIcon.textContent = 'v';
+        actions.appendChild(expandIcon);
+    }, 1000);
 }
 
 // Perplexity API call function using Netlify serverless function
