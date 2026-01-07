@@ -2,8 +2,8 @@
 
 // Constants
 const SAMPLE_ORDERS_PER_CUSTOMER = 3;
-const SENDER_NAME = 'Justin';
-const COMPANY_NAME = 'Principle M';
+const SENDER_NAME = 'Your Tailor';
+const COMPANY_NAME = 'Ins[ai]ght';
 
 // State management
 let appState = {
